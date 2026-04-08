@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade to PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .pricing-card { background: var(--surface); padding: 3rem; border-radius: 16px; border: 2px solid var(--primary); text-align: center; max-width: 400px; margin: 0 auto; }
+        .price { font-size: 3rem; font-weight: 700; color: white; margin: 1rem 0; }
+        ul.features { list-style: none; padding: 0; margin-bottom: 2rem; }
+        ul.features li { padding: 0.5rem 0; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="container animate-fade-in">
+        <div class="glass-panel" style="text-align: center;">
+            <div class="nav">
+                <h1>Upgrade Your Experience</h1>
+                <div class="nav-links">
+                    <a href="dashboard.html">Back to Dashboard</a>
+                </div>
+            </div>
+
+            <div class="pricing-card">
+                <h2>PRO Plan</h2>
+                <div class="price">$15.00 <span style="font-size: 1rem; color: var(--text-secondary);">one-time</span></div>
+                <ul class="features">
+                    <li>Advanced device tracking insights</li>
+                    <li>Priority reservations (coming soon)</li>
+                    <li>Golden PRO Badge</li>
+                </ul>
+                <button id="checkout-btn" class="btn btn-primary" style="width: 100%; font-size: 1.2rem;">Pay with Stripe</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.22.0/dist/pocketbase.umd.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!pb.authStore.isValid) {
+                window.location.href = "index.html";
+            }
+            
+            document.getElementById('checkout-btn').addEventListener('click', () => {
+                const userId = pb.authStore.model.id;
+                
+                document.getElementById('checkout-btn').innerText = "Redirecting to Stripe...";
+                
+                // Set a local flag so success.html knows they actually initiated payment!
+                sessionStorage.setItem("awaiting_pro_upgrade", "true");
+                
+                // Use the Stripe payment link the user provided, appending the userId
+                // so the webhook knows who paid!
+                const stripePaymentLink = "https://buy.stripe.com/test_14AcN40Y01vr0gI9XhbEA00";
+                window.location.href = `${stripePaymentLink}?client_reference_id=${userId}`;
+            });
+        });
+    </script>
+</body>
+</html>

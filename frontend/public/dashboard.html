@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container animate-fade-in">
+        <div class="glass-panel">
+            <div class="nav">
+                <h1>Nexus Inventory</h1>
+                <div class="nav-links">
+                    <a href="dashboard.html" class="active">Dashboard</a>
+                    <a href="admin.html" id="admin-link" class="hidden">Admin Panel</a>
+                    <a href="profile.html" id="profile-link">Profile</a>
+                    <a href="#" id="pro-link" class="hidden">PRO Upgrade</a>
+                    <a href="#" id="logout-btn">Log Out (<span id="user-email"></span>)</a>
+                </div>
+            </div>
+            
+            <div id="pro-banner-display" class="pro-banner hidden">
+                ✨ You are a PRO User! You have access to advanced inventory insights.
+            </div>
+
+            <!-- PRO Exclusive Toolbar -->
+            <div id="pro-toolbar" class="hidden" style="display: flex; gap: 1rem; margin-bottom: 2rem; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--secondary); padding: 1rem; border-radius: 12px; align-items: center; flex-wrap: wrap;">
+                <div style="font-weight: 600; color: var(--secondary);">PRO Tools:</div>
+                <input type="text" id="pro-search" placeholder="Search devices by name or notes..." style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--surface); color: white; flex: 1; min-width: 200px;">
+                <select id="pro-filter" style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--surface); color: white;">
+                    <option value="all">All Devices</option>
+                    <option value="available">Available Only</option>
+                    <option value="in_use">In Use Only</option>
+                </select>
+                <button id="pro-export-btn" class="btn btn-success" style="padding: 0.5rem 1rem;">⬇ Export CSV</button>
+            </div>
+
+            <div class="device-section">
+                <h2>Office Devices</h2>
+                <div class="device-grid" id="device-list">
+                    <!-- Devices populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for noting usage -->
+    <div id="note-modal" class="glass-panel hidden" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; min-width: 400px;">
+        <h3>Edit Device</h3>
+        <form id="update-device-form">
+            <input type="hidden" id="edit-device-id">
+            <div class="form-group">
+                <label>Device Name</label>
+                <input type="text" id="edit-device-name" required>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="edit-device-status">
+                    <option value="available">Available</option>
+                    <option value="in_use">In Use</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Assigned To</label>
+                <select id="edit-device-assigned">
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Notes (Who is using, conditon etc.)</label>
+                <input type="text" id="edit-device-notes" placeholder="e.g. Taking it to meeting room A">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-danger" onclick="document.getElementById('note-modal').classList.add('hidden')">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.22.0/dist/pocketbase.umd.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard();
+        });
+    </script>
+</body>
+</html>

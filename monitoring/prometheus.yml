@@ -1,0 +1,68 @@
+# Prometheus Configuration File
+# This file configures Prometheus to collect metrics from Node Exporter and cAdvisor
+
+global:
+  # Default interval for scraping targets
+  scrape_interval: 15s
+  
+  # Timeout for individual scrape requests
+  scrape_timeout: 10s
+  
+  # Interval for evaluating alert rules
+  evaluation_interval: 15s
+  
+  # External labels added to all time series
+  external_labels:
+    monitor: 'monitoring-stack-2026'
+    environment: 'production'
+
+# Alert rules file
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Rule files for alerting
+rule_files:
+  # - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter - Server hardware metrics
+  - job_name: 'node'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['node-exporter:9100']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+  # cAdvisor - Container metrics
+  - job_name: 'containers'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['cadvisor:8080']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+  # PocketBase specific metrics (if available)
+  - job_name: 'pocketbase'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['pocketbase:9090']
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+    # Mark as optional - won't fail if unavailable
+    honor_timestamps: true

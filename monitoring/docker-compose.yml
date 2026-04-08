@@ -6,11 +6,23 @@ services:
     container_name: prometheus
     restart: unless-stopped
     volumes:
-      - '/data/coolify/services/hjw2oev9uesqmdlpj8b6zt8n/prometheus.yml:/etc/prometheus/prometheus.yml:ro'
       - 'prometheus_data:/prometheus'
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
+      - '/bin/sh'
+      - '-c'
+      - |
+        cat > /tmp/prometheus.yml <<'EOF'
+        global:
+          scrape_interval: 15s
+          scrape_timeout: 10s
+          evaluation_interval: 15s
+
+        scrape_configs:
+          - job_name: 'prometheus'
+            static_configs:
+              - targets: ['localhost:9090']
+        EOF
+        exec /bin/prometheus --config.file=/tmp/prometheus.yml --storage.tsdb.path=/prometheus
     networks:
       - monitoring
     ports:

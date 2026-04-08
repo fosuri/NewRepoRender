@@ -8,8 +8,10 @@ services:
     restart: unless-stopped
     ports:
       - '9090:9090'
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -120,3 +122,57 @@ volumes:
     driver: local
   grafana_data:
     driver: local
+
+configs:
+  prometheus_config:
+    content: |
+      global:
+        scrape_interval: 15s
+        scrape_timeout: 10s
+        evaluation_interval: 15s
+        external_labels:
+          monitor: 'monitoring-stack-2026'
+          environment: 'production'
+
+      alerting:
+        alertmanagers:
+          - static_configs:
+              - targets: []
+
+      rule_files:
+        # - "alerts.yml"
+
+      scrape_configs:
+        - job_name: 'prometheus'
+          scrape_interval: 15s
+          static_configs:
+            - targets: ['localhost:9090']
+
+        - job_name: 'node'
+          scrape_interval: 15s
+          scrape_timeout: 10s
+          static_configs:
+            - targets: ['node-exporter:9100']
+          relabel_configs:
+            - source_labels: [__address__]
+              target_label: instance
+
+        - job_name: 'containers'
+          scrape_interval: 15s
+          scrape_timeout: 10s
+          static_configs:
+            - targets: ['cadvisor:8080']
+          relabel_configs:
+            - source_labels: [__address__]
+              target_label: instance
+
+        - job_name: 'pocketbase'
+          scrape_interval: 15s
+          scrape_timeout: 10s
+          static_configs:
+            - targets: ['pocketbase:9090']
+          metrics_path: '/metrics'
+          relabel_configs:
+            - source_labels: [__address__]
+              target_label: instance
+          honor_timestamps: true
